@@ -140,11 +140,21 @@ func coursesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func middlewareHandler(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("before handler middleware")
+		handler.ServeHTTP(w, r)
+		fmt.Println("middleware finished")
+	})
+}
 
 func main() {
 	// fmt.Println("Hello go")
 
-	http.HandleFunc("/course/", courseHandler)
-	http.HandleFunc("/course", coursesHandler)
+	courseItem := http.HandlerFunc(courseHandler)
+	courseList := http.HandlerFunc(coursesHandler)
+
+	http.Handle("/course/", middlewareHandler(courseItem))
+	http.Handle("/course", middlewareHandler(courseList))
 	http.ListenAndServe(":8000", nil)
 }
