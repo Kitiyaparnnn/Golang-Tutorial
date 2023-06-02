@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -27,6 +28,31 @@ func query(db *sql.DB) {
 	fmt.Println(id, detail, income, expense, date)
 }
 
+func Insert(db *sql.DB) {
+	var detail string
+	var income float64
+	var expense float64
+	fmt.Scan(&detail, &income, &expense)
+	createAt := time.Now()
+
+	result, err := db.Exec(`INSERT INTO statement (detail,income, expense, date) VALUES (?, ?, ?, ?)`, detail, income, expense, createAt)
+	if err != nil {
+		log.Fatal(err)
+	}
+	id, err := result.LastInsertId()
+	fmt.Println(id)
+
+}
+
+func Delete(db *sql.DB)  {
+	var delete_id int
+	fmt.Scan(&delete_id)
+	_, err := db.Exec(`DELETE FROM statement WHERE id = ?`, delete_id)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/myaccountdb")
 	if err != nil {
@@ -34,6 +60,8 @@ func main() {
 	} else {
 		fmt.Println("connect successfully")
 	}
-	// fmt.Println(db)
-	query(db)
+
+	// query(db) //get data by id
+	// Insert(db) //insert data
+	Delete(db)
 }
